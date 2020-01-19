@@ -1,5 +1,8 @@
 import numpy as np
 import pygame as pg
+
+from initPuzzle import initStartVals
+
 pg.font.init()
 
 SIZE = 9
@@ -147,43 +150,12 @@ class Puzzle:
 
     def setStartVals(self):
 
-        for r in range(SIZE):
-            for c in range(SIZE):
-                self.cells[r, c].num = 0
-
-        self.cells[0, 0].num = 5
-        self.cells[0, 1].num = 3
-        self.cells[0, 4].num = 7
-        self.cells[1, 0].num = 6
-        self.cells[1, 3].num = 1
-        self.cells[1, 4].num = 9
-        self.cells[1, 5].num = 5
-        self.cells[2, 1].num = 9
-        self.cells[2, 2].num = 8
-        self.cells[2, 7].num = 6
-        self.cells[3, 0].num = 8
-        self.cells[3, 4].num = 6
-        self.cells[3, 8].num = 3
-        self.cells[4, 0].num = 4
-        self.cells[4, 3].num = 8
-        self.cells[4, 5].num = 3
-        self.cells[4, 8].num = 1
-        self.cells[5, 0].num = 7
-        self.cells[5, 4].num = 2
-        self.cells[5, 8].num = 6
-        self.cells[6, 1].num = 6
-        self.cells[6, 6].num = 2
-        self.cells[6, 7].num = 8
-        self.cells[7, 3].num = 4
-        self.cells[7, 4].num = 1
-        self.cells[7, 5].num = 9
-        self.cells[7, 8].num = 5
-        self.cells[8, 4].num = 8
-        self.cells[8, 7].num = 7
-        self.cells[8, 8].num = 9
+        board = initStartVals()
 
         for r in range(SIZE):
             for c in range(SIZE):
+                self.cells[r, c].num = board[r, c]
+
                 if self.cells[r, c].num != 0:
                     self.cells[r, c].solved = True
 
