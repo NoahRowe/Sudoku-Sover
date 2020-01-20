@@ -132,11 +132,8 @@ class Puzzle:
                     self.index -= 1
                     r, c = listToIndex[self.index]
 
-            # NEED TO EXIT THE WHILE LOOP AND GO AGAIN
+            # Remove this return to solve in one itteration
             return
-
-        print("Solved: ", self.isSolved())
-        self.display()
 
     def checkSolvedBefore(self, row, col):
         for r in range(SIZE):
@@ -159,6 +156,7 @@ class Puzzle:
                 if self.cells[r, c].num != 0:
                     self.cells[r, c].solved = True
 
+    # quick func to text display the puzzle in the console
     def display(self):
         print("- " * (SIZE + 1))
 
@@ -211,9 +209,32 @@ class Puzzle:
                 win.blit(text, (gap * c + hoffset, gap * r + voffset))
 
 
+class Button:
 
+    def __init__(self, x, y, w, h, text, c):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.text = text
+        self.colour = c
 
+    def draw(self, win):
+        # Draw a boarder then a green box for text
+        pg.draw.rect(win, (0, 0, 0), (self.x-2, self.y-2, self.w+4, self.h+4), 0)
+        pg.draw.rect(win, self.colour, (self.x, self.y, self.w, self.h), 0)
 
+        # Put in the text
+        fnt = pg.font.SysFont('comicsans', 50)
+        text = fnt.render(self.text, 1, (0, 0, 0))
+        win.blit(text, (self.x + (self.w/2 - text.get_width()/2), self.y + (self.h/2 - text.get_height()/2)))
+
+    def onTop(self, mousePos):
+        x, y = mousePos
+        if self.x < x < self.x + self.w:
+            if self.y < y < self.y + self.h:
+                return True
+        return False
 
 def genListOfIndex():
     temp = []
@@ -222,6 +243,7 @@ def genListOfIndex():
             temp.append([r, c])
 
     return np.array(temp)
+
 
 def drawGrid(win, dSize):
     # Draw Grid Lines
@@ -238,22 +260,28 @@ def drawGrid(win, dSize):
 def main():
     p = Puzzle()
     p.setStartVals()
-    # p.display()
-    # p.solve()
 
-    disWidth = 700
-    disHeight = 700
-    dSize = disWidth
+    displayWidth = 700
+    displayHeight = 700 + 80
+    dSize = displayWidth
 
     cellW = 50
     cellH = 50
     cellS = 10
 
-    win = pg.display.set_mode((disWidth, disHeight))
+    win = pg.display.set_mode((displayWidth, displayHeight))
     pg.display.set_caption("Sudoku")
     clock = pg.time.Clock()
 
+    sButtonW = 250
+    sButtonH = 50
+    sButtonX = (displayWidth - sButtonW) / 2
+    sButtonY = displayHeight - sButtonH - 20
+
+    startButton = Button(sButtonX, sButtonY, sButtonW, sButtonH, "Start Solution", (0, 200, 0))
+
     crashed = False
+    startSolve = False
 
     while not crashed:
 
@@ -261,12 +289,18 @@ def main():
             if event.type == pg.QUIT:
                 crashed = True
 
+            if event.type == pg.MOUSEBUTTONDOWN:
+                mousePos = pg.mouse.get_pos()
+                if startButton.onTop(mousePos):
+                    startSolve = True
+
         win.fill(WHITE)
-        if not p.isSolved():
+        if not p.isSolved() and startSolve:
             p.solve()
         p.drawBoard(win, dSize)
         drawGrid(win, dSize)
-        clock.tick(120)
+        startButton.draw(win)
+        clock.tick(360)
 
         pg.display.flip()
 
