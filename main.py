@@ -41,6 +41,7 @@ class Puzzle:
         self.cells = np.array(self.cells)
 
     def getGridVals(self, row, col):
+        # Gets the mini 3x3 values used to determine options for a specific cell - called in getOptions
         gridVals = np.array([])
         for r in range(3):  # Row vals
             for c in range(3):  # Col vals
@@ -54,7 +55,7 @@ class Puzzle:
         return gridVals
 
     def getOptions(self, row, col):
-
+        # Gets the allowed values for a single cell - could be optimized
         options = np.arange(1, 10)
         puzRow = []
         puzCol = []
@@ -78,8 +79,8 @@ class Puzzle:
 
         return possVals
 
-    # SOLVE IS TURNED INTO A STEP TOWARDS SOLVING THE BOARD  - THIS FUNCTION GETS ITTERATED
     def solve(self):
+        # Solve function that is currently only one iteration towards a full solution - change index and return to fix
         # index = 0
         listToIndex = genListOfIndex()
 
@@ -132,10 +133,11 @@ class Puzzle:
                     self.index -= 1
                     r, c = listToIndex[self.index]
 
-            # Remove this return to solve in one itteration
+            # Remove this return to solve in one iteration
             return
 
     def checkSolvedBefore(self, row, col):
+        # Checks to see if any values before cell[row, col] are not solved for sure yet
         for r in range(SIZE):
             for c in range(SIZE):
 
@@ -146,7 +148,7 @@ class Puzzle:
                     return False
 
     def setStartVals(self):
-
+        # Uses initPuzzle.py to set the static values of the board
         board = initStartVals()
 
         for r in range(SIZE):
@@ -156,41 +158,16 @@ class Puzzle:
                 if self.cells[r, c].num != 0:
                     self.cells[r, c].solved = True
 
-    # quick func to text display the puzzle in the console
-    def display(self):
-        print("- " * (SIZE + 1))
-
-        for r in range(SIZE):
-
-            if r % 3 == 0 and r != 0:
-                print("- " * (SIZE + 1))
-            print("| ", end="")
-
-            for c in range(SIZE):
-                if c % 3 == 0 and c != 0:
-                    print(" | ", end="")
-                print(self.cells[r, c].num, end="")
-            print(" |")
-
-        print("- " * (SIZE + 1))
-
     def isSolved(self):
+        # Check if the board is solved
         for r in range(SIZE):
             for c in range(SIZE):
                 if self.cells[r, c].num == 0:
                     return False
         return True
 
-    def getStartBoard(self):
-        board = []
-        for r in range(SIZE):
-            temp = []
-            for c in range(SIZE):
-                temp.append(self.cells[r, c].num)
-            board.append(temp)
-        return board
-
     def drawBoard(self, win, dSize):
+        # Function to draw the board values to the win
         font = pg.font.SysFont("comicsans", 70)
         voffset = 15
         hoffset = 27
@@ -200,6 +177,7 @@ class Puzzle:
 
         for r in range(SIZE):
             for c in range(SIZE):
+                # Do not display unsolved values
                 if self.cells[r, c].num == 0:
                     colour = WHITE
                 else:
@@ -220,7 +198,7 @@ class Button:
         self.colour = c
 
     def draw(self, win):
-        # Draw a boarder then a green box for text
+        # Draw a black boarder and then the button box
         pg.draw.rect(win, (0, 0, 0), (self.x-2, self.y-2, self.w+4, self.h+4), 0)
         pg.draw.rect(win, self.colour, (self.x, self.y, self.w, self.h), 0)
 
@@ -230,6 +208,7 @@ class Button:
         win.blit(text, (self.x + (self.w/2 - text.get_width()/2), self.y + (self.h/2 - text.get_height()/2)))
 
     def onTop(self, mousePos):
+        # Determine if the mouse is on top of the button
         x, y = mousePos
         if self.x < x < self.x + self.w:
             if self.y < y < self.y + self.h:
@@ -237,6 +216,7 @@ class Button:
         return False
 
 def genListOfIndex():
+    # Generate a list of index values to iterate through a SIZExSIZE grid
     temp = []
     for r in range(SIZE):
         for c in range(SIZE):
@@ -246,7 +226,7 @@ def genListOfIndex():
 
 
 def drawGrid(win, dSize):
-    # Draw Grid Lines
+    # Draw Grid Lines to the window
     gap = dSize / 9
     for i in range(SIZE + 1):
         if i % 3 == 0 and i != 0:
@@ -264,10 +244,6 @@ def main():
     displayWidth = 700
     displayHeight = 700 + 80
     dSize = displayWidth
-
-    cellW = 50
-    cellH = 50
-    cellS = 10
 
     win = pg.display.set_mode((displayWidth, displayHeight))
     pg.display.set_caption("Sudoku")
@@ -289,7 +265,7 @@ def main():
             if event.type == pg.QUIT:
                 crashed = True
 
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if event.type == pg.MOUSEBUTTONDOWN and not startSolve:
                 mousePos = pg.mouse.get_pos()
                 if startButton.onTop(mousePos):
                     startSolve = True
@@ -300,7 +276,7 @@ def main():
         p.drawBoard(win, dSize)
         drawGrid(win, dSize)
         startButton.draw(win)
-        clock.tick(360)
+        clock.tick(60)
 
         pg.display.flip()
 
