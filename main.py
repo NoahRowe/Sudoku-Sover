@@ -215,6 +215,7 @@ class Button:
                 return True
         return False
 
+
 def genListOfIndex():
     # Generate a list of index values to iterate through a SIZExSIZE grid
     temp = []
